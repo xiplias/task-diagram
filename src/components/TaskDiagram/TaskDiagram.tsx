@@ -24,7 +24,7 @@ const TaskDiagram: React.FC<TaskDiagramProps> = ({ width = 800, height = 600 }) 
   
   // Use our custom hooks
   useTaskStorage(tasks, dependencies, dispatch);
-  useTaskLayout(tasks, dependencies, dispatch);
+  useTaskLayout(tasks, dependencies, dispatch, width, height);
   
   // Use the new handle interaction hook
   const {
