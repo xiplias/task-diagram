@@ -1,4 +1,4 @@
-import { Task } from '../../store/types';
+import { Task, TaskId } from '../../store/types';
 import { NODE_WIDTH, NODE_HEIGHT, NODE_COLOR, SELECTED_NODE_COLOR, TEXT_COLOR, TEXT_FONT } from './constants';
 import { setupTextContext } from './utils';
 
@@ -11,7 +11,7 @@ import { setupTextContext } from './utils';
 export function drawNodes(
   ctx: CanvasRenderingContext2D, 
   tasks: Task[], 
-  selectedTaskId: string | null
+  selectedTaskId: TaskId | null
 ): void {
   tasks.forEach(task => {
     // Draw rectangle

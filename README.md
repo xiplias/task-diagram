@@ -27,22 +27,34 @@ A React application for creating and visualizing task dependency diagrams. This 
 
 ### Store
 
-- `src/store/taskReducer.ts`: Reducer for managing task state, including actions for adding/removing tasks and dependencies.
+The state management has been refactored and organized for better maintainability:
+
+- `src/store/rootReducer.ts`: Combines multiple reducers into a single root reducer for the application.
+- `src/store/actions.ts`: Central file defining action types to ensure consistency throughout the application.
+- `src/store/types.ts`: Contains shared type definitions for state management.
+- `src/store/utils.ts`: Utility functions used across reducers to simplify state operations and reduce code duplication.
+- `src/store/reducers/taskReducer.ts`: Manages task state, including creating and deleting tasks.
+- `src/store/reducers/dependencyReducer.ts`: Handles dependency operations between tasks.
 
 ### Utilities
 
 - `src/lib/canvasRenderer.ts`: Handles the rendering of tasks and dependencies on the canvas.
 - `src/lib/layoutUtils.ts`: Utility functions for calculating task layouts based on dependencies.
+- `src/lib/textUtils.ts`: Functions for handling text operations in the canvas context.
+- `src/lib/findUtils.ts`: Search utilities for finding specific tasks and dependencies in the state.
 
 ### Types
 
 - `src/types/vitest.d.ts`: Type definitions for Vitest testing library.
+- `src/types/Task.ts`: Type definitions for tasks and related operations.
+- `src/types/Dependency.ts`: Type definitions for dependencies between tasks.
 
 ### Main Application Files
 
 - `src/App.tsx`: Main application component that renders the TaskDiagram.
 - `src/main.tsx`: Entry point for the React application.
 - `src/index.ts`: Exports the main components for use in other applications.
+- `src/TaskDiagram.tsx`: Top-level component export for the Task Diagram feature.
 
 ## Getting Started
 
