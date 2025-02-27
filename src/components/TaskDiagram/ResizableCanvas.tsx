@@ -1,23 +1,38 @@
-import { useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useRef, useEffect, CSSProperties, MouseEvent } from 'react';
+
+interface ResizableCanvasProps {
+  width: number;
+  height: number;
+  onMouseDown?: (e: MouseEvent<HTMLCanvasElement>) => void;
+  render: (ctx: CanvasRenderingContext2D, width: number, height: number) => void;
+  style?: CSSProperties;
+}
 
 /**
  * A resizable canvas component that automatically adjusts to its container
  */
-export default function ResizableCanvas({ width, height, onMouseDown, render, style }) {
-  const canvasRef = useRef(null);
+const ResizableCanvas: React.FC<ResizableCanvasProps> = ({ 
+  width, 
+  height, 
+  onMouseDown, 
+  render, 
+  style = {} 
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Render content to canvas when dependencies change
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      render(ctx, width, height);
+      if (ctx) {
+        render(ctx, width, height);
+      }
     }
   }, [width, height, render]);
 
   // Default styles
-  const defaultStyle = {
+  const defaultStyle: CSSProperties = {
     border: '1px solid #ccc',
     borderRadius: '4px',
     display: 'block',
@@ -36,16 +51,6 @@ export default function ResizableCanvas({ width, height, onMouseDown, render, st
       style={mergedStyle}
     />
   );
-}
-
-ResizableCanvas.propTypes = {
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  onMouseDown: PropTypes.func,
-  render: PropTypes.func.isRequired,
-  style: PropTypes.object
 };
 
-ResizableCanvas.defaultProps = {
-  style: {}
-}; 
+export default ResizableCanvas; 

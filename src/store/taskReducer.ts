@@ -1,23 +1,43 @@
+export interface Task {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+}
+
+export interface Dependency {
+  from: string;
+  to: string;
+}
+
+export interface TaskState {
+  tasks: Task[];
+  dependencies: Dependency[];
+  selectedTask: string | null;
+}
+
+type TaskAction =
+  | { type: 'ADD_TASK'; task: Task }
+  | { type: 'ADD_DEPENDENCY'; from: string; to: string }
+  | { type: 'SELECT_TASK'; id: string | null }
+  | { type: 'DELETE_TASK'; id: string }
+  | { type: 'SET_TASKS'; tasks: Task[] }
+  | { type: 'SET_DEPENDENCIES'; dependencies: Dependency[] };
+
 // Initial state for the diagram
-export const initialState = {
+export const initialState: TaskState = {
   tasks: [],
   dependencies: [],
   selectedTask: null,
 };
 
 // Reducer for state management
-export function taskReducer(state, action) {
+export function taskReducer(state: TaskState, action: TaskAction): TaskState {
   switch (action.type) {
     case 'ADD_TASK': {
-      const newTask = {
-        id: action.id,
-        name: action.name,
-        x: action.x,
-        y: action.y,
-      };
       return {
         ...state,
-        tasks: [...state.tasks, newTask],
+        tasks: [...state.tasks, action.task],
       };
     }
     case 'ADD_DEPENDENCY': {
@@ -46,6 +66,9 @@ export function taskReducer(state, action) {
     }
     case 'SET_TASKS': {
       return { ...state, tasks: action.tasks };
+    }
+    case 'SET_DEPENDENCIES': {
+      return { ...state, dependencies: action.dependencies };
     }
     default:
       return state;

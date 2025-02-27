@@ -1,9 +1,15 @@
-import PropTypes from 'prop-types';
+import React from 'react';
+
+interface TaskControlsProps {
+  onAddTask: () => void;
+  onDeleteTask: () => void;
+  selectedTask: string | null;
+}
 
 /**
  * Component for task diagram control buttons
  */
-export default function TaskControls({ onAddTask, onDeleteTask, selectedTask }) {
+const TaskControls: React.FC<TaskControlsProps> = ({ onAddTask, onDeleteTask, selectedTask }) => {
   return (
     <div className="controls" style={{ marginBottom: '16px' }}>
       <button 
@@ -37,10 +43,6 @@ export default function TaskControls({ onAddTask, onDeleteTask, selectedTask }) 
       </button>
     </div>
   );
-}
+};
 
-TaskControls.propTypes = {
-  onAddTask: PropTypes.func.isRequired,
-  onDeleteTask: PropTypes.func.isRequired,
-  selectedTask: PropTypes.string
-}; 
+export default TaskControls; 

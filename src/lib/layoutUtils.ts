@@ -1,4 +1,5 @@
 import dagre from '@dagrejs/dagre';
+import { Task, Dependency } from '../store/taskReducer';
 
 // Layout configuration
 const NODE_WIDTH = 100;
@@ -6,11 +7,11 @@ const NODE_HEIGHT = 40;
 
 /**
  * Calculate task layout using Dagre for a top-down hierarchy
- * @param {Array} tasks - Array of task objects
- * @param {Array} dependencies - Array of dependency objects
- * @returns {Array} Updated tasks with new positions
+ * @param tasks - Array of task objects
+ * @param dependencies - Array of dependency objects
+ * @returns Updated tasks with new positions
  */
-export function layoutTasks(tasks, dependencies) {
+export function layoutTasks(tasks: Task[], dependencies: Dependency[]): Task[] {
   // Return early if no tasks
   if (!tasks.length) return tasks;
   

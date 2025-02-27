@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import TaskDiagram from '../TaskDiagram/TaskDiagram';
+import '@testing-library/jest-dom';
 
 // Mock our hooks to avoid complex testing
 vi.mock('../../hooks/useTaskStorage', () => ({
@@ -26,7 +27,7 @@ describe('TaskDiagram Component', () => {
     vi.clearAllMocks();
     
     // Mock canvas getContext
-    HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+    const mockCanvasContext = {
       clearRect: vi.fn(),
       beginPath: vi.fn(),
       moveTo: vi.fn(),
@@ -35,7 +36,12 @@ describe('TaskDiagram Component', () => {
       fill: vi.fn(),
       stroke: vi.fn(),
       fillText: vi.fn()
-    }));
+    } as unknown as CanvasRenderingContext2D;
+    
+    // Mocking getContext with a simpler approach
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+      (contextId: string) => contextId === '2d' ? mockCanvasContext : null
+    );
   });
 
   it('renders the main components', () => {

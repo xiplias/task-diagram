@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import TaskControls from '../TaskDiagram/TaskControls';
+import '@testing-library/jest-dom';
 
 describe('TaskControls Component', () => {
   it('renders add and delete buttons', () => {
-    render(<TaskControls onAddTask={() => {}} onDeleteTask={() => {}} />);
+    render(<TaskControls onAddTask={() => {}} onDeleteTask={() => {}} selectedTask={null} />);
     
     expect(screen.getByText('Add Task')).toBeInTheDocument();
     expect(screen.getByText('Delete Task')).toBeInTheDocument();
@@ -43,6 +44,7 @@ describe('TaskControls Component', () => {
       <TaskControls 
         onAddTask={mockOnAddTask} 
         onDeleteTask={() => {}}
+        selectedTask={null}
       />
     );
     

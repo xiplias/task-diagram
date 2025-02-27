@@ -1,3 +1,5 @@
+import { Task, Dependency } from '../store/taskReducer';
+
 /**
  * Constants for rendering
  */
@@ -9,14 +11,21 @@ const TEXT_COLOR = '#000';
 
 /**
  * Render nodes and edges to a canvas context
- * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
- * @param {Array} tasks - Array of task objects
- * @param {Array} dependencies - Array of dependency objects
- * @param {string|null} selectedTaskId - ID of the selected task
- * @param {number} width - Canvas width
- * @param {number} height - Canvas height
+ * @param ctx - Canvas rendering context
+ * @param tasks - Array of task objects
+ * @param dependencies - Array of dependency objects
+ * @param selectedTaskId - ID of the selected task
+ * @param width - Canvas width
+ * @param height - Canvas height
  */
-export function renderCanvas(ctx, tasks, dependencies, selectedTaskId, width, height) {
+export function renderCanvas(
+  ctx: CanvasRenderingContext2D, 
+  tasks: Task[], 
+  dependencies: Dependency[], 
+  selectedTaskId: string | null, 
+  width: number, 
+  height: number
+): void {
   // Clear the canvas
   ctx.clearRect(0, 0, width, height);
   
@@ -29,11 +38,15 @@ export function renderCanvas(ctx, tasks, dependencies, selectedTaskId, width, he
 
 /**
  * Draw dependency edges on the canvas
- * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
- * @param {Array} tasks - Array of task objects
- * @param {Array} dependencies - Array of dependency objects
+ * @param ctx - Canvas rendering context
+ * @param tasks - Array of task objects
+ * @param dependencies - Array of dependency objects
  */
-function drawEdges(ctx, tasks, dependencies) {
+function drawEdges(
+  ctx: CanvasRenderingContext2D, 
+  tasks: Task[], 
+  dependencies: Dependency[]
+): void {
   ctx.strokeStyle = EDGE_COLOR;
   
   dependencies.forEach(dep => {
@@ -51,11 +64,15 @@ function drawEdges(ctx, tasks, dependencies) {
 
 /**
  * Draw task nodes on the canvas
- * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
- * @param {Array} tasks - Array of task objects
- * @param {string|null} selectedTaskId - ID of the selected task
+ * @param ctx - Canvas rendering context
+ * @param tasks - Array of task objects
+ * @param selectedTaskId - ID of the selected task
  */
-function drawNodes(ctx, tasks, selectedTaskId) {
+function drawNodes(
+  ctx: CanvasRenderingContext2D, 
+  tasks: Task[], 
+  selectedTaskId: string | null
+): void {
   tasks.forEach(task => {
     // Draw circle
     ctx.beginPath();

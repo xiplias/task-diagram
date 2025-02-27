@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import ResizableCanvas from '../TaskDiagram/ResizableCanvas';
+import '@testing-library/jest-dom';
 
 describe('ResizableCanvas Component', () => {
   // Setup mocks
@@ -11,7 +12,7 @@ describe('ResizableCanvas Component', () => {
     vi.clearAllMocks();
     
     // Mock canvas getContext
-    HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+    const mockCanvasContext = {
       clearRect: vi.fn(),
       beginPath: vi.fn(),
       moveTo: vi.fn(),
@@ -20,7 +21,12 @@ describe('ResizableCanvas Component', () => {
       fill: vi.fn(),
       stroke: vi.fn(),
       fillText: vi.fn()
-    }));
+    } as unknown as CanvasRenderingContext2D;
+    
+    // Mocking getContext with a simpler approach
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+      (contextId: string) => contextId === '2d' ? mockCanvasContext : null
+    );
   });
   
   it('renders canvas with correct properties', () => {
@@ -56,10 +62,12 @@ describe('ResizableCanvas Component', () => {
     const canvas = container.querySelector('canvas');
     
     // Trigger a mouse down event
-    fireEvent.mouseDown(canvas);
-    
-    // Verify the handler was called
-    expect(mockOnMouseDown).toHaveBeenCalled();
+    if (canvas) {
+      fireEvent.mouseDown(canvas);
+      
+      // Verify the handler was called
+      expect(mockOnMouseDown).toHaveBeenCalled();
+    }
   });
   
   it('applies custom styles when provided', () => {
@@ -79,6 +87,6 @@ describe('ResizableCanvas Component', () => {
     const canvas = container.querySelector('canvas');
     
     // Check that the style was merged with default styles
-    expect(canvas.style.border).toBe('2px solid blue');
+    expect(canvas?.style.border).toBe('2px solid blue');
   });
 }); 
