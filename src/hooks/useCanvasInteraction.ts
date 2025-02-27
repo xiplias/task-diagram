@@ -1,7 +1,8 @@
 import { useCallback, Dispatch, MouseEvent } from 'react';
 import { Task } from '../store/taskReducer';
-import { CONTAINER_PADDING } from '../lib/canvas/constants';
 import { NODE_WIDTH, NODE_HEIGHT } from '../lib/canvas/constants';
+import { getCanvasCoordinates } from '../lib/canvas/coordinateUtils';
+import { isPointInRect } from '../lib/canvas/coordinateUtils';
 
 // Constants
 // const NODE_RADIUS = 20;
@@ -24,8 +25,8 @@ export function useCanvasInteraction(
 ): (event: MouseEvent<HTMLCanvasElement>) => void {
   return useCallback((event: MouseEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    const clickX = event.clientX - rect.left - CONTAINER_PADDING;
-    const clickY = event.clientY - rect.top - CONTAINER_PADDING;
+    // Use the shared coordinate calculation function
+    const { x: clickX, y: clickY } = getCanvasCoordinates(event, rect);
     
     // Check if a node was clicked
     const clickedNode = findClickedNode(tasks, clickX, clickY);
@@ -48,16 +49,8 @@ export function useCanvasInteraction(
  */
 function findClickedNode(tasks: Task[], x: number, y: number): Task | undefined {
   return tasks.find(task => {
-    // Check if click is within the node rectangle
-    const halfWidth = NODE_WIDTH / 2;
-    const halfHeight = NODE_HEIGHT / 2;
-    
-    return (
-      x >= task.x - halfWidth &&
-      x <= task.x + halfWidth &&
-      y >= task.y - halfHeight &&
-      y <= task.y + halfHeight
-    );
+    // Use the shared point-in-rectangle test function
+    return isPointInRect(task.x, task.y, NODE_WIDTH, NODE_HEIGHT, x, y);
   });
 }
 

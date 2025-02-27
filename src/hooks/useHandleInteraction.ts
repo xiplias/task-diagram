@@ -1,7 +1,7 @@
 import { useState, useCallback, MouseEvent } from 'react';
 import { Task, TaskId } from '../store/types';
 import { findHandleAtPosition, ConnectionHandle } from '../lib/canvas/handleUtils';
-import { CONTAINER_PADDING } from '../lib/canvas/constants';
+import { getCanvasCoordinates } from '../lib/canvas/coordinateUtils';
 
 type TaskAction = 
   | { type: 'ADD_DEPENDENCY'; from: TaskId; to: TaskId }
@@ -21,42 +21,12 @@ export function useHandleInteraction(
   const [mousePos, setMousePos] = useState<{ x: number, y: number } | null>(null);
 
   /**
-   * Calculate adjusted mouse coordinates taking into account canvas padding and scaling
-   * @param event Mouse event
-   * @param rect Canvas bounding rectangle
-   * @returns Adjusted X and Y coordinates
-   */
-  const getAdjustedCoordinates = (event: MouseEvent<HTMLCanvasElement>, rect: DOMRect) => {
-    // Get the actual canvas dimensions from the element itself
-    const canvas = event.currentTarget;
-    
-    // Handle case where canvas dimensions might not be available (e.g., in tests)
-    let x, y;
-    
-    // Check if we have access to the canvas dimensions for scaling calculation
-    if (canvas.width && canvas.height && rect.width && rect.height) {
-      // Calculate the scale factor in case the canvas is being scaled by CSS
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      
-      // Calculate the coordinates with scaling, then adjust for padding
-      x = (event.clientX - rect.left) * scaleX - CONTAINER_PADDING;
-      y = (event.clientY - rect.top) * scaleY - CONTAINER_PADDING;
-    } else {
-      // Fallback for test environments: just use the simple calculation
-      x = event.clientX - rect.left - CONTAINER_PADDING;
-      y = event.clientY - rect.top - CONTAINER_PADDING;
-    }
-    
-    return { x, y };
-  };
-
-  /**
    * Handle mouse down on canvas
    */
   const handleMouseDown = useCallback((event: MouseEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    const { x: clickX, y: clickY } = getAdjustedCoordinates(event, rect);
+    // Use the shared coordinate calculation function
+    const { x: clickX, y: clickY } = getCanvasCoordinates(event, rect);
     
     // Find if a handle was clicked
     const handle = findHandleAtPosition(tasks, clickX, clickY);
@@ -79,7 +49,8 @@ export function useHandleInteraction(
    */
   const handleMouseMove = useCallback((event: MouseEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    const { x: mouseX, y: mouseY } = getAdjustedCoordinates(event, rect);
+    // Use the shared coordinate calculation function
+    const { x: mouseX, y: mouseY } = getCanvasCoordinates(event, rect);
     
     // Update mouse position if dragging
     if (draggedHandle) {
@@ -99,7 +70,8 @@ export function useHandleInteraction(
     // Only process if we were dragging a handle
     if (draggedHandle) {
       const rect = event.currentTarget.getBoundingClientRect();
-      const { x: releaseX, y: releaseY } = getAdjustedCoordinates(event, rect);
+      // Use the shared coordinate calculation function
+      const { x: releaseX, y: releaseY } = getCanvasCoordinates(event, rect);
       
       // Check if mouse is over another handle
       const targetHandle = findHandleAtPosition(tasks, releaseX, releaseY);

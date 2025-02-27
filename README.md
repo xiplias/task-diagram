@@ -9,6 +9,7 @@ A React application for creating and visualizing task dependency diagrams. This 
 - Automatic layout of tasks based on dependencies
 - Interactive canvas with task selection
 - Persistent storage of tasks and dependencies
+- Enhanced hit detection for improved user interaction
 
 ## Project Structure
 
@@ -55,6 +56,31 @@ The state management has been refactored and organized for better maintainabilit
 - `src/main.tsx`: Entry point for the React application.
 - `src/index.ts`: Exports the main components for use in other applications.
 - `src/TaskDiagram.tsx`: Top-level component export for the Task Diagram feature.
+
+## Recent Improvements
+
+### Mouse Pointer vs Cursor Position Fix
+
+We've implemented a solution to address the common issue where the visual cursor position doesn't exactly match the actual mouse pointer coordinates, which can make interacting with small UI elements difficult:
+
+- **Problem**: When interacting with small UI elements like connection handles, the visual cursor position may not exactly match the actual mouse pointer coordinates, making it difficult to click on small targets.
+
+- **Solution**: We've separated the visual rendering radius from the hit detection radius:
+
+  - Visual radius: The size of the handle as drawn on the screen (`HANDLE_RADIUS`)
+  - Hit detection radius: A larger area used for detecting mouse interactions (`HANDLE_RADIUS + 10`)
+
+- **Implementation Details**:
+
+  - Modified `isPointInHandle` function to accept an `isHitDetection` parameter
+  - Updated rendering code to use the visual radius for drawing
+  - Enhanced debug tools to visualize both the visual and hit detection areas
+
+- **Testing**:
+  - Added a visual test component (`HandleSelectionTest`) that demonstrates the improved hit detection
+  - Created Playwright E2E tests to verify the fix works as expected
+
+To see this in action, click the "Show Selection Test" button in the application.
 
 ## Getting Started
 
