@@ -1,0 +1,403 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Test-Driven Development for Task Diagram
+
+This document outlines the Test-Driven Development (TDD) approach for the Task Diagram application. By following these guidelines, we ensure that all features are thoroughly tested before implementation, resulting in more robust and maintainable code.
+
+## TDD Process
+
+1. **Write a failing test** - Before implementing any feature, write a test that defines the expected behavior.
+2. **Run the test to see it fail** - Verify that the test fails as expected.
+3. **Implement the minimum code needed to pass the test** - Focus only on making the test pass.
+4. **Run the test to see it pass** - Verify that your implementation works.
+5. **Refactor the code** - Clean up your implementation while ensuring the test still passes.
+6. **Repeat** - Continue this cycle for each new feature or component.
+
+## Testing Strategy by Component
+
+### Task Diagram Component
+
+```typescript
+// src/components/__tests__/TaskDiagram.test.tsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import TaskDiagram from "../TaskDiagram/TaskDiagram";
+
+describe("TaskDiagram", () => {
+  test("should render the component", () => {
+    render(<TaskDiagram />);
+    // Assert that the component renders essential elements
+    expect(
+      screen.getByText(/Click on a task to select it/i)
+    ).toBeInTheDocument();
+  });
+
+  test('should add a new task when "Add Task" button is clicked', () => {
+    render(<TaskDiagram />);
+    const addButton = screen.getByText(/Add Task/i);
+    fireEvent.click(addButton);
+    // Assert that a new task is added to the state
+    // This might require mocking or checking the rendered output
+  });
+
+  test("should select a task when clicked", () => {
+    // Test task selection behavior
+  });
+
+  test("should create dependency between tasks", () => {
+    // Test dependency creation behavior
+  });
+});
+```
+
+### ResizableCanvas Component
+
+```typescript
+// src/components/__tests__/ResizableCanvas.test.tsx
+import { render } from "@testing-library/react";
+import ResizableCanvas from "../TaskDiagram/ResizableCanvas";
+
+describe("ResizableCanvas", () => {
+  test("should render canvas with correct dimensions", () => {
+    const renderMock = vi.fn();
+    const { container } = render(
+      <ResizableCanvas
+        width={400}
+        height={300}
+        render={renderMock}
+        onMouseDown={() => {}}
+      />
+    );
+    const canvas = container.querySelector("canvas");
+    expect(canvas).toBeInTheDocument();
+    expect(canvas).toHaveAttribute("width", "400");
+    expect(canvas).toHaveAttribute("height", "300");
+  });
+
+  test("should call render function with context", () => {
+    // Test that render callback is called with correct arguments
+  });
+});
+```
+
+### TaskControls Component
+
+```typescript
+// src/components/__tests__/TaskControls.test.tsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import TaskControls from "../TaskDiagram/TaskControls";
+
+describe("TaskControls", () => {
+  test("should render control buttons", () => {
+    const mockAddTask = vi.fn();
+    const mockDeleteTask = vi.fn();
+
+    render(
+      <TaskControls
+        onAddTask={mockAddTask}
+        onDeleteTask={mockDeleteTask}
+        selectedTask={null}
+      />
+    );
+
+    expect(screen.getByText(/Add Task/i)).toBeInTheDocument();
+    expect(screen.getByText(/Delete Task/i)).toBeInTheDocument();
+  });
+
+  test("should call onAddTask when Add Task button is clicked", () => {
+    const mockAddTask = vi.fn();
+    const mockDeleteTask = vi.fn();
+
+    render(
+      <TaskControls
+        onAddTask={mockAddTask}
+        onDeleteTask={mockDeleteTask}
+        selectedTask={null}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Add Task/i));
+    expect(mockAddTask).toHaveBeenCalled();
+  });
+});
+```
+
+## Testing Hooks
+
+### useTaskLayout
+
+```typescript
+// src/hooks/__tests__/useTaskLayout.test.ts
+import { renderHook } from "@testing-library/react-hooks";
+import { useTaskLayout } from "../../hooks/useTaskLayout";
+
+describe("useTaskLayout", () => {
+  test("should calculate layout for tasks", () => {
+    const mockDispatch = vi.fn();
+    const tasks = [
+      { id: "task1", name: "Task 1", x: 0, y: 0 },
+      { id: "task2", name: "Task 2", x: 0, y: 0 },
+    ];
+    const dependencies = [{ from: "task1", to: "task2" }];
+
+    renderHook(() => useTaskLayout(tasks, dependencies, mockDispatch));
+
+    // Assert that dispatch was called with the correct action and layout
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "SET_TASKS",
+        tasks: expect.any(Array),
+      })
+    );
+  });
+});
+```
+
+### useTaskStorage
+
+```typescript
+// src/hooks/__tests__/useTaskStorage.test.ts
+import { renderHook } from "@testing-library/react-hooks";
+import { useTaskStorage } from "../../hooks/useTaskStorage";
+
+describe("useTaskStorage", () => {
+  beforeEach(() => {
+    // Mock localStorage
+    Storage.prototype.getItem = vi.fn();
+    Storage.prototype.setItem = vi.fn();
+  });
+
+  test("should load tasks from localStorage on mount", () => {
+    // Setup localStorage mock to return tasks
+    Storage.prototype.getItem.mockReturnValue(
+      JSON.stringify({
+        tasks: [{ id: "task1", name: "Task 1", x: 100, y: 100 }],
+        dependencies: [],
+      })
+    );
+
+    const mockDispatch = vi.fn();
+    renderHook(() => useTaskStorage([], [], mockDispatch));
+
+    // Assert dispatch was called with loaded tasks
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "SET_TASKS",
+        tasks: expect.any(Array),
+      })
+    );
+  });
+
+  test("should save tasks to localStorage when tasks change", () => {
+    const tasks = [{ id: "task1", name: "Task 1", x: 100, y: 100 }];
+    const dependencies = [];
+    const mockDispatch = vi.fn();
+
+    renderHook(() => useTaskStorage(tasks, dependencies, mockDispatch));
+
+    // Assert localStorage.setItem was called with tasks
+    expect(localStorage.setItem).toHaveBeenCalledWith(
+      "taskDiagram",
+      expect.any(String)
+    );
+  });
+});
+```
+
+## Testing Utilities
+
+### canvasRenderer
+
+```typescript
+// src/lib/__tests__/canvasRenderer.test.ts
+import { renderCanvas } from "../../lib/canvasRenderer";
+
+describe("canvasRenderer", () => {
+  let mockContext: CanvasRenderingContext2D;
+
+  beforeEach(() => {
+    // Mock canvas context
+    mockContext = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      stroke: vi.fn(),
+      fillText: vi.fn(),
+      // Add other methods as needed
+    } as unknown as CanvasRenderingContext2D;
+  });
+
+  test("should clear canvas before rendering", () => {
+    renderCanvas(mockContext, [], [], null, 800, 600);
+    expect(mockContext.clearRect).toHaveBeenCalledWith(0, 0, 800, 600);
+  });
+
+  test("should render tasks as rectangles", () => {
+    const tasks = [{ id: "task1", name: "Task 1", x: 100, y: 100 }];
+
+    renderCanvas(mockContext, tasks, [], null, 800, 600);
+
+    // Assert that appropriate context methods were called for drawing
+    expect(mockContext.fillRect).toHaveBeenCalled();
+    expect(mockContext.fillText).toHaveBeenCalled();
+  });
+});
+```
+
+### layoutUtils
+
+```typescript
+// src/lib/__tests__/layoutUtils.test.ts
+import { layoutTasks } from "../../lib/layoutUtils";
+
+describe("layoutUtils", () => {
+  test("should position dependent tasks appropriately", () => {
+    const tasks = [
+      { id: "task1", name: "Task 1", x: 0, y: 0 },
+      { id: "task2", name: "Task 2", x: 0, y: 0 },
+    ];
+    const dependencies = [{ from: "task1", to: "task2" }];
+
+    const result = layoutTasks(tasks, dependencies);
+
+    // Assert tasks are positioned logically
+    // For example, the second task should be to the right or below the first
+    const task1 = result.find((t) => t.id === "task1");
+    const task2 = result.find((t) => t.id === "task2");
+
+    expect(task1).toBeDefined();
+    expect(task2).toBeDefined();
+
+    // Check vertical alignment
+    expect(task2!.y).toBeGreaterThan(task1!.y);
+    // Or check horizontal alignment
+    // expect(task2!.x).toBeGreaterThan(task1!.x);
+  });
+});
+```
+
+## Testing State Management
+
+```typescript
+// src/store/__tests__/taskReducer.test.ts
+import { taskReducer, initialState } from "../../store/taskReducer";
+
+describe("taskReducer", () => {
+  test("should add a task", () => {
+    const action = {
+      type: "ADD_TASK",
+      task: { id: "task1", name: "Task 1", x: 100, y: 100 },
+    };
+
+    const newState = taskReducer(initialState, action);
+
+    expect(newState.tasks).toHaveLength(1);
+    expect(newState.tasks[0]).toEqual(action.task);
+  });
+
+  test("should delete a task", () => {
+    const state = {
+      ...initialState,
+      tasks: [{ id: "task1", name: "Task 1", x: 100, y: 100 }],
+    };
+
+    const action = { type: "DELETE_TASK", id: "task1" };
+    const newState = taskReducer(state, action);
+
+    expect(newState.tasks).toHaveLength(0);
+  });
+
+  test("should add a dependency", () => {
+    const action = { type: "ADD_DEPENDENCY", from: "task1", to: "task2" };
+    const newState = taskReducer(initialState, action);
+
+    expect(newState.dependencies).toHaveLength(1);
+    expect(newState.dependencies[0]).toEqual({ from: "task1", to: "task2" });
+  });
+});
+```
+
+## Testing Integration
+
+For integration tests, we should test how different components work together:
+
+```typescript
+// src/integration/__tests__/taskInteraction.test.tsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import App from "../../App";
+
+describe("Task Interaction Integration", () => {
+  test("should be able to create a task and select it", async () => {
+    render(<App />);
+
+    // Add a task
+    fireEvent.click(screen.getByText(/Add Task/i));
+
+    // Verify task is rendered
+    // This might need implementation-specific details to identify the task
+
+    // Select the task (simulating a click on the canvas at task position)
+    // This would require test-specific hooks or data attributes to find the task
+  });
+
+  test("should be able to create two tasks and establish a dependency", async () => {
+    // Similar to above, but creating two tasks and creating a dependency
+  });
+});
+```
+
+## Implementing New Features with TDD
+
+When implementing a new feature, follow this TDD workflow:
+
+1. **Identify the feature** - Clearly define what the feature should do
+2. **Write failing tests** - Create tests that describe the expected behavior
+3. **Run tests to confirm they fail** - Ensure your tests are valid
+4. **Implement the feature** - Write the minimum code necessary to pass the tests
+5. **Refactor** - Clean up the implementation while ensuring tests still pass
+
+### Example: Adding a "Rename Task" Feature
+
+1. First, write the test:
+
+```typescript
+// src/components/__tests__/TaskDiagram.test.tsx (additional test)
+test("should rename a task when edit button is clicked", () => {
+  render(<TaskDiagram />);
+
+  // Add a task
+  fireEvent.click(screen.getByText(/Add Task/i));
+
+  // Select the task
+  // ...implementation specific...
+
+  // Click rename button
+  fireEvent.click(screen.getByText(/Rename/i));
+
+  // Type new name
+  const input = screen.getByDisplayValue(/Task 1/i);
+  fireEvent.change(input, { target: { value: "New Task Name" } });
+  fireEvent.keyDown(input, { key: "Enter", code: "Enter" });
+
+  // Assert task name has changed
+  expect(screen.getByText(/New Task Name/i)).toBeInTheDocument();
+});
+```
+
+2. Then implement the feature after confirming the test fails.
+
+## Conclusion
+
+By following this TDD approach, we ensure that all features of the Task Diagram application are thoroughly tested before implementation. This leads to:
+
+- More robust code
+- Better design decisions
+- Clearer understanding of requirements
+- Documentation of expected behavior through tests
+- Confidence when refactoring
+
+Remember: Red (fail) → Green (pass) → Refactor

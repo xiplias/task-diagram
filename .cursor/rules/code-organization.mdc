@@ -1,0 +1,112 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ # Code Organization Guidelines
+
+## Small Files and Separation of Concerns
+
+This document outlines our guidelines for organizing code in the Task Diagram project, emphasizing small, focused files and clear separation of concerns.
+
+### Core Principles
+
+1. **Single Responsibility Principle**: Each file should have a single responsibility and reason to change.
+2. **Small File Size**: Files should be kept small and focused (generally < 150 lines of code).
+3. **Clear Separation of Concerns**: Different aspects of the application should be separated into distinct modules.
+
+### File Organization Guidelines
+
+#### Component Structure
+
+- Each React component should be in its own file
+- Complex components should be broken down into smaller sub-components
+- Component files should export exactly one component (the default export)
+- Related components can be grouped in a directory with an index.ts file for exports
+
+```typescript
+// Good: One component per file
+// TaskCard.tsx
+export default function TaskCard() { ... }
+
+// Bad: Multiple components in one file
+export function TaskCard() { ... }
+export function TaskList() { ... }
+```
+
+#### Hooks
+
+- Custom hooks should be extracted into separate files
+- Each hook file should focus on a single piece of functionality
+- Hook files should be named with the `use` prefix (e.g., `useTaskStorage.ts`)
+
+```typescript
+// Good: Single-purpose hook
+// useTaskStorage.ts
+export function useTaskStorage() {
+  // Logic for task storage only
+}
+
+// Bad: Multiple unrelated concerns in one hook
+export function useTaskManager() {
+  // Task storage logic
+  // Task layout logic
+  // Canvas interaction logic
+}
+```
+
+#### Utilities and Services
+
+- Utility functions should be grouped by domain in separate files
+- Service modules should focus on a single external system or API
+- Pure utility functions should be separated from stateful services
+
+```typescript
+// Good: Related utilities in one file
+// dateUtils.ts
+export function formatTaskDate() { ... }
+export function parseTaskDate() { ... }
+
+// Good: Separate file for different domain
+// canvasUtils.ts
+export function calculateNodePosition() { ... }
+export function detectCollision() { ... }
+```
+
+#### State Management
+
+- Reducers should be separated by domain
+- Complex reducers should be split into smaller files
+- Action creators should be grouped with their related reducers
+
+```typescript
+// Good: Domain-specific state management
+// taskReducer.ts
+export function taskReducer() { ... }
+
+// dependencyReducer.ts
+export function dependencyReducer() { ... }
+```
+
+### When to Make Exceptions
+
+There are cases where combining related functionality in one file is acceptable:
+
+1. When functionality is tightly coupled and would be confusing if separated
+2. For small helper functions that are only used within the file
+3. For components that are simple and highly cohesive (e.g., a button with its variants)
+
+### Implementation Guidelines
+
+1. **Regular Refactoring**: Periodically review files and refactor them if they grow too large
+2. **Thoughtful Imports**: Minimize circular dependencies by careful organization
+3. **Consistent Naming**: Use consistent naming patterns to make the codebase more navigable
+4. **Documentation**: Include JSDoc comments for functions and components
+
+### Benefits of This Approach
+
+- Easier code navigation and maintenance
+- Improved code reuse
+- Better testability
+- Faster onboarding for new developers
+- Reduced merge conflicts when collaborating
