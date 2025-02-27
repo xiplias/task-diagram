@@ -14,3 +14,9 @@ export const EDGE_COLOR = '#888';
 // Text appearance constants
 export const TEXT_COLOR = '#fff';
 export const TEXT_FONT = '12px sans-serif'; 
+
+// Connection handle constants
+export const HANDLE_RADIUS = 6;
+export const HANDLE_COLOR = '#4caf50';
+export const HANDLE_HOVER_COLOR = '#81c784';
+export const HANDLE_STROKE_COLOR = '#333'; 

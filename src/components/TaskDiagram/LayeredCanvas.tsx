@@ -2,6 +2,7 @@ import React, { useRef, useEffect, CSSProperties, MouseEvent, KeyboardEvent, use
 import { Task, Dependency, TaskId } from '../../store/types';
 import { drawEdges } from '../../lib/canvas/edgeRenderer';
 import { drawNodes } from '../../lib/canvas/nodeRenderer';
+import { ConnectionHandle } from '../../lib/canvas/handleUtils';
 
 interface LayeredCanvasProps {
   width: number;
@@ -9,7 +10,14 @@ interface LayeredCanvasProps {
   tasks: Task[];
   dependencies: Dependency[];
   selectedTaskId: TaskId | null;
+  // Optional connection handle state for drag-drop connections
+  hoveredHandle?: ConnectionHandle | null;
+  draggedHandle?: ConnectionHandle | null;
+  mousePos?: { x: number, y: number } | null;
+  // Mouse event handlers
   onMouseDown?: (e: MouseEvent<HTMLCanvasElement>) => void;
+  onMouseMove?: (e: MouseEvent<HTMLCanvasElement>) => void;
+  onMouseUp?: (e: MouseEvent<HTMLCanvasElement>) => void;
   onKeyDown?: (e: KeyboardEvent<HTMLCanvasElement>) => void;
   style?: CSSProperties;
   title?: string;
@@ -29,7 +37,12 @@ const LayeredCanvas: React.FC<LayeredCanvasProps> = ({
   tasks,
   dependencies,
   selectedTaskId,
+  hoveredHandle = null,
+  draggedHandle = null,
+  mousePos = null,
   onMouseDown,
+  onMouseMove,
+  onMouseUp,
   onKeyDown,
   style = {},
   title = 'Task Diagram',
@@ -65,7 +78,8 @@ const LayeredCanvas: React.FC<LayeredCanvasProps> = ({
     ...canvasStyle,
     backgroundColor: 'transparent',
     outline: isFocused ? '2px solid #4a90e2' : 'none', // Visual focus indicator
-    zIndex: 10 // Top layer to capture interactions
+    zIndex: 10, // Top layer to capture interactions
+    cursor: hoveredHandle ? 'pointer' : 'default', // Change cursor when hovering over a handle
   };
 
   // Render background (static elements)
@@ -87,10 +101,10 @@ const LayeredCanvas: React.FC<LayeredCanvasProps> = ({
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.clearRect(0, 0, width, height);
-        drawEdges(ctx, tasks, dependencies);
+        drawEdges(ctx, tasks, dependencies, draggedHandle, mousePos);
       }
     }
-  }, [width, height, tasks, dependencies]); // Re-render when tasks or dependencies change
+  }, [width, height, tasks, dependencies, draggedHandle, mousePos]); // Re-render when drag state changes
 
   // Render tasks
   useEffect(() => {
@@ -99,10 +113,10 @@ const LayeredCanvas: React.FC<LayeredCanvasProps> = ({
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.clearRect(0, 0, width, height);
-        drawNodes(ctx, tasks, selectedTaskId);
+        drawNodes(ctx, tasks, selectedTaskId, hoveredHandle);
       }
     }
-  }, [width, height, tasks, selectedTaskId]); // Re-render when tasks or selection change
+  }, [width, height, tasks, selectedTaskId, hoveredHandle]); // Re-render when hover state changes
 
   // Handle keyboard events
   const handleKeyDown = (e: KeyboardEvent<HTMLCanvasElement>) => {
@@ -110,6 +124,10 @@ const LayeredCanvas: React.FC<LayeredCanvasProps> = ({
       onKeyDown(e);
     }
   };
+
+  // Focus handling for keyboard navigation
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
 
   return (
     <div role="region" aria-label={title} style={containerStyle}>
@@ -147,15 +165,15 @@ const LayeredCanvas: React.FC<LayeredCanvasProps> = ({
         width={width}
         height={height}
         onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
         onKeyDown={handleKeyDown}
-        style={interactiveStyle}
-        role="img"
-        aria-label={title}
-        aria-describedby="canvas-description"
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         tabIndex={0}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        aria-roledescription="task diagram"
+        role="application"
+        aria-describedby="canvas-description"
+        style={interactiveStyle}
       />
     </div>
   );
