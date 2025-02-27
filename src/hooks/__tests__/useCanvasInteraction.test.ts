@@ -2,12 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useCanvasInteraction } from '../useCanvasInteraction';
 import { Task } from '../../store/taskReducer';
+import { CONTAINER_PADDING } from '../../lib/canvas/constants';
 import '@testing-library/jest-dom';
 
 interface MockClickEvent {
   clientX: number;
   clientY: number;
-  target: {
+  currentTarget: {
     getBoundingClientRect: () => {
       left: number;
       top: number;
@@ -29,22 +30,25 @@ describe('useCanvasInteraction Hook', () => {
     ];
   });
   
+  // Helper to create a mock event with padding adjustment
+  const createMockEvent = (x: number, y: number): MockClickEvent => ({
+    clientX: x + CONTAINER_PADDING,
+    clientY: y + CONTAINER_PADDING,
+    currentTarget: {
+      getBoundingClientRect: () => ({
+        left: 0,
+        top: 0
+      })
+    }
+  });
+  
   it('should handle canvas click that does not hit a task', () => {
     const { result } = renderHook(() => 
       useCanvasInteraction(mockTasks, null, mockDispatch)
     );
     
     // Simulate a click event away from any tasks
-    const clickEvent: MockClickEvent = {
-      clientX: 50,
-      clientY: 50,
-      target: {
-        getBoundingClientRect: () => ({
-          left: 0,
-          top: 0
-        })
-      }
-    };
+    const clickEvent = createMockEvent(50, 50);
     
     result.current(clickEvent as any);
     
@@ -61,16 +65,7 @@ describe('useCanvasInteraction Hook', () => {
     );
     
     // Simulate a click event on the first task
-    const clickEvent: MockClickEvent = {
-      clientX: 100,
-      clientY: 100,
-      target: {
-        getBoundingClientRect: () => ({
-          left: 0,
-          top: 0
-        })
-      }
-    };
+    const clickEvent = createMockEvent(100, 100);
     
     result.current(clickEvent as any);
     
@@ -90,16 +85,7 @@ describe('useCanvasInteraction Hook', () => {
     );
     
     // Simulate clicking on a different task
-    const clickEvent: MockClickEvent = {
-      clientX: 200,
-      clientY: 200,
-      target: {
-        getBoundingClientRect: () => ({
-          left: 0,
-          top: 0
-        })
-      }
-    };
+    const clickEvent = createMockEvent(200, 200);
     
     result.current(clickEvent as any);
     
@@ -126,16 +112,7 @@ describe('useCanvasInteraction Hook', () => {
     );
     
     // Simulate clicking on the same task
-    const clickEvent: MockClickEvent = {
-      clientX: 100,
-      clientY: 100,
-      target: {
-        getBoundingClientRect: () => ({
-          left: 0,
-          top: 0
-        })
-      }
-    };
+    const clickEvent = createMockEvent(100, 100);
     
     result.current(clickEvent as any);
     

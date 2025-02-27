@@ -1,4 +1,4 @@
-import { Dependency, TaskState } from './types';
+import { TaskState } from './types';
 
 /**
  * Check if a dependency already exists in the state

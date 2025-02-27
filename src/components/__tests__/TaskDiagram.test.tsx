@@ -51,8 +51,9 @@ describe('TaskDiagram Component', () => {
     expect(screen.getByText('Add Task')).toBeInTheDocument();
     expect(screen.getByText('Delete Task')).toBeInTheDocument();
     
-    // Check for instructions
-    expect(screen.getByText('Click on a task to select it.')).toBeInTheDocument();
+    // Check for instructions about connection handles
+    expect(screen.getByText(/Click and drag from a connection handle.*to create a dependency/i)).toBeInTheDocument();
+    expect(screen.getByText(/Select a task and click "Delete Task" to remove it/i)).toBeInTheDocument();
   });
 
   it('renders canvas with proper attributes', () => {

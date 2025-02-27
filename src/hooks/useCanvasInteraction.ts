@@ -1,8 +1,10 @@
 import { useCallback, Dispatch, MouseEvent } from 'react';
 import { Task } from '../store/taskReducer';
+import { CONTAINER_PADDING } from '../lib/canvas/constants';
+import { NODE_WIDTH, NODE_HEIGHT } from '../lib/canvas/constants';
 
 // Constants
-const NODE_RADIUS = 20;
+// const NODE_RADIUS = 20;
 
 type TaskAction = 
   | { type: 'SELECT_TASK'; id: string | null }
@@ -22,8 +24,8 @@ export function useCanvasInteraction(
 ): (event: MouseEvent<HTMLCanvasElement>) => void {
   return useCallback((event: MouseEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
+    const clickX = event.clientX - rect.left - CONTAINER_PADDING;
+    const clickY = event.clientY - rect.top - CONTAINER_PADDING;
     
     // Check if a node was clicked
     const clickedNode = findClickedNode(tasks, clickX, clickY);
@@ -46,9 +48,16 @@ export function useCanvasInteraction(
  */
 function findClickedNode(tasks: Task[], x: number, y: number): Task | undefined {
   return tasks.find(task => {
-    const dx = task.x - x;
-    const dy = task.y - y;
-    return dx * dx + dy * dy <= NODE_RADIUS * NODE_RADIUS;
+    // Check if click is within the node rectangle
+    const halfWidth = NODE_WIDTH / 2;
+    const halfHeight = NODE_HEIGHT / 2;
+    
+    return (
+      x >= task.x - halfWidth &&
+      x <= task.x + halfWidth &&
+      y >= task.y - halfHeight &&
+      y <= task.y + halfHeight
+    );
   });
 }
 

@@ -1,5 +1,5 @@
 import { Task, TaskId } from '../../store/types';
-import { NODE_WIDTH, NODE_HEIGHT, HANDLE_RADIUS } from './constants';
+import { NODE_HEIGHT, HANDLE_RADIUS } from './constants';
 
 /**
  * Enum for specifying handle position on a node

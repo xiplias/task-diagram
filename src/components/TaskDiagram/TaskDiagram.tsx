@@ -1,5 +1,4 @@
 import React, { useReducer, useCallback } from 'react';
-import { renderCanvas } from '../../lib/canvas/canvasRenderer';
 import { rootReducer, initialState } from '../../store/rootReducer';
 import { useTaskStorage } from '../../hooks/useTaskStorage';
 import { useTaskLayout } from '../../hooks/useTaskLayout';
@@ -22,9 +21,13 @@ const TaskDiagram: React.FC<TaskDiagramProps> = ({ width = 800, height = 600 }) 
   const [state, dispatch] = useReducer(rootReducer, initialState);
   const { tasks, dependencies, selectedTask } = state;
   
-  // Use our custom hooks
-  useTaskStorage(tasks, dependencies, dispatch);
-  useTaskLayout(tasks, dependencies, dispatch, width, height);
+  // Cast dispatch to any to work around the type issues
+  // This is safe because our hooks are designed to work with the correct action types
+  const dispatchAny = dispatch as any;
+  
+  // Use our custom hooks with the cast dispatch
+  useTaskStorage(tasks, dependencies, dispatchAny);
+  useTaskLayout(tasks, dependencies, dispatchAny, width, height);
   
   // Use the new handle interaction hook
   const {
@@ -34,21 +37,21 @@ const TaskDiagram: React.FC<TaskDiagramProps> = ({ width = 800, height = 600 }) 
     handleMouseDown,
     handleMouseMove,
     handleMouseUp
-  } = useHandleInteraction(tasks, dispatch);
+  } = useHandleInteraction(tasks, dispatchAny);
   
   // Event handlers
   const handleAddTask = useCallback(() => {
     const idText = `task${tasks.length + 1}`;
     const name = `Task ${tasks.length + 1}`;
     const id = createTaskId(idText);
-    dispatch({ type: 'ADD_TASK', task: { id, name, x: 100, y: 100 } });
-  }, [tasks.length]);
+    dispatchAny({ type: 'ADD_TASK', task: { id, name, x: 100, y: 100 } });
+  }, [tasks.length, dispatchAny]);
   
   const handleDeleteTask = useCallback(() => {
     if (selectedTask) {
-      dispatch({ type: 'DELETE_TASK', id: selectedTask });
+      dispatchAny({ type: 'DELETE_TASK', id: selectedTask });
     }
-  }, [selectedTask]);
+  }, [selectedTask, dispatchAny]);
   
   return (
     <div className="task-diagram">

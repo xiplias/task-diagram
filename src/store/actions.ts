@@ -1,4 +1,4 @@
-import { Task, Dependency } from './types';
+import { Task, Dependency, TaskId } from './types';
 
 // Task-related actions
 export type TaskActionTypes = 
@@ -17,13 +17,13 @@ export type DependencyActionTypes =
 export type TaskAction =
   | { type: 'ADD_TASK'; task: Task }
   | { type: 'SET_TASKS'; tasks: Task[] }
-  | { type: 'DELETE_TASK'; id: string }
-  | { type: 'SELECT_TASK'; id: string | null };
+  | { type: 'DELETE_TASK'; id: TaskId }
+  | { type: 'SELECT_TASK'; id: TaskId | null };
 
 export type DependencyAction =
-  | { type: 'ADD_DEPENDENCY'; from: string; to: string }
+  | { type: 'ADD_DEPENDENCY'; from: TaskId; to: TaskId }
   | { type: 'SET_DEPENDENCIES'; dependencies: Dependency[] }
-  | { type: 'DELETE_TASK'; id: string };
+  | { type: 'DELETE_TASK'; id: TaskId };
 
 // Root action type (union of all actions)
 export type RootAction = TaskAction | DependencyAction; 

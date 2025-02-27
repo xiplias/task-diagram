@@ -7,7 +7,7 @@ export { useTaskLayout } from './hooks/useTaskLayout';
 export { useCanvasInteraction } from './hooks/useCanvasInteraction';
 
 // Utilities
-export * from './lib/canvasRenderer';
+export * from './lib/canvas/canvasRenderer';
 export * from './lib/layoutUtils';
 
 // Store

@@ -1,7 +1,65 @@
 import { Task, Dependency } from '../../store/types';
 import { EDGE_COLOR } from './constants';
 import { findTaskById } from './utils';
-import { ConnectionHandle, getHandlePosition } from './handleUtils';
+import { ConnectionHandle, getHandlePosition, HandlePosition } from './handleUtils';
+
+/**
+ * Draw a curved dependency line between two tasks
+ * @param ctx Canvas context
+ * @param fromX Start X coordinate
+ * @param fromY Start Y coordinate
+ * @param toX End X coordinate
+ * @param toY End Y coordinate
+ * @param isDashed Whether to draw a dashed line
+ */
+function drawCurvedLine(
+  ctx: CanvasRenderingContext2D,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  isDashed: boolean = false
+) {
+  // Calculate control points for a bezier curve
+  // The control points are positioned vertically between the points
+  const distance = Math.abs(toY - fromY);
+  const curveDistance = Math.min(distance * 0.5, 50); // Limit the curve distance
+  
+  // Set up line style
+  ctx.lineWidth = 1.5;
+  if (isDashed) {
+    ctx.setLineDash([5, 3]);
+  } else {
+    ctx.setLineDash([]);
+  }
+  
+  // Draw the curve
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  
+  if (fromY < toY) {
+    // From top to bottom - curve downward
+    ctx.bezierCurveTo(
+      fromX, fromY + curveDistance,
+      toX, toY - curveDistance,
+      toX, toY
+    );
+  } else {
+    // From bottom to top - curve upward
+    ctx.bezierCurveTo(
+      fromX, fromY - curveDistance,
+      toX, toY + curveDistance,
+      toX, toY
+    );
+  }
+  
+  ctx.stroke();
+  
+  // Reset line dash if needed
+  if (isDashed) {
+    ctx.setLineDash([]);
+  }
+}
 
 /**
  * Draw dependency edges on the canvas
@@ -27,10 +85,12 @@ export function drawEdges(
     
     if (!source || !target) return;
     
-    ctx.beginPath();
-    ctx.moveTo(source.x, source.y);
-    ctx.lineTo(target.x, target.y);
-    ctx.stroke();
+    // Get the actual handle positions
+    const sourcePos = getHandlePosition(source, HandlePosition.BOTTOM);
+    const targetPos = getHandlePosition(target, HandlePosition.TOP);
+    
+    // Draw curved connection
+    drawCurvedLine(ctx, sourcePos.x, sourcePos.y, targetPos.x, targetPos.y);
   });
   
   // Draw connection line while dragging
@@ -41,14 +101,7 @@ export function drawEdges(
     // Get the position of the dragged handle
     const handlePos = getHandlePosition(task, draggedHandle.position);
     
-    // Draw line from handle to mouse position
-    ctx.beginPath();
-    ctx.moveTo(handlePos.x, handlePos.y);
-    ctx.lineTo(mousePos.x, mousePos.y);
-    
-    // Use dashed line for in-progress connection
-    ctx.setLineDash([5, 3]);
-    ctx.stroke();
-    ctx.setLineDash([]); // Reset to solid line
+    // Draw line from handle to mouse position with curve
+    drawCurvedLine(ctx, handlePos.x, handlePos.y, mousePos.x, mousePos.y, true);
   }
 } 

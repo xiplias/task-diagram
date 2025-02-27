@@ -64,6 +64,7 @@ const LayeredCanvas: React.FC<LayeredCanvasProps> = ({
     marginTop: '24px',
     marginLeft: 'auto',
     marginRight: 'auto',
+    padding: '20px', // Padding matches CONTAINER_PADDING constant
   };
 
   // Default styles for canvas layers
@@ -73,7 +74,9 @@ const LayeredCanvas: React.FC<LayeredCanvasProps> = ({
     left: 0,
     border: '1px solid #ccc',
     borderRadius: '4px',
-    padding: '20px', // Add internal padding
+    // Enforce exact sizing to prevent scaling distortion
+    width: `${width}px`,
+    height: `${height}px`,
     ...style
   };
 
