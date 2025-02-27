@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 /**
  * A resizable canvas component that automatically adjusts to its container
  */
-export default function ResizableCanvas({ width, height, onMouseDown, render }) {
+export default function ResizableCanvas({ width, height, onMouseDown, render, style }) {
   const canvasRef = useRef(null);
 
   // Render content to canvas when dependencies change
@@ -16,18 +16,24 @@ export default function ResizableCanvas({ width, height, onMouseDown, render }) 
     }
   }, [width, height, render]);
 
+  // Default styles
+  const defaultStyle = {
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    display: 'block',
+    marginBottom: '16px'
+  };
+
+  // Merge custom styles with defaults
+  const mergedStyle = { ...defaultStyle, ...style };
+
   return (
     <canvas
       ref={canvasRef}
       width={width}
       height={height}
       onMouseDown={onMouseDown}
-      style={{ 
-        border: '1px solid #ccc',
-        borderRadius: '4px',
-        display: 'block',
-        marginBottom: '16px' 
-      }}
+      style={mergedStyle}
     />
   );
 }
@@ -36,5 +42,10 @@ ResizableCanvas.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   onMouseDown: PropTypes.func,
-  render: PropTypes.func.isRequired
+  render: PropTypes.func.isRequired,
+  style: PropTypes.object
+};
+
+ResizableCanvas.defaultProps = {
+  style: {}
 }; 

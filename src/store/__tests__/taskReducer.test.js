@@ -1,61 +1,9 @@
 import { describe, it, expect } from 'vitest';
-
-// Extract reducer and initial state from TaskDiagram.jsx for testing
-const initialState = {
-  tasks: [],
-  dependencies: [],
-  selectedTask: null,
-};
-
-function reducer(state, action) {
-  switch (action.type) {
-    case 'ADD_TASK': {
-      const newTask = {
-        id: action.id,
-        name: action.name,
-        x: action.x,
-        y: action.y,
-      };
-      return {
-        ...state,
-        tasks: [...state.tasks, newTask],
-      };
-    }
-    case 'ADD_DEPENDENCY': {
-      const { from, to } = action;
-      if (state.dependencies.find(dep => dep.from === from && dep.to === to)) {
-        return state;
-      }
-      return {
-        ...state,
-        dependencies: [...state.dependencies, { from, to }],
-      };
-    }
-    case 'SELECT_TASK': {
-      return { ...state, selectedTask: action.id };
-    }
-    case 'DELETE_TASK': {
-      const taskId = action.id;
-      return {
-        ...state,
-        tasks: state.tasks.filter(t => t.id !== taskId),
-        dependencies: state.dependencies.filter(
-          dep => dep.from !== taskId && dep.to !== taskId
-        ),
-        selectedTask: state.selectedTask === taskId ? null : state.selectedTask,
-      };
-    }
-    case 'SET_TASKS': {
-      return { ...state, tasks: action.tasks };
-    }
-    default:
-      return state;
-  }
-}
+import { initialState, taskReducer } from '../taskReducer';
 
 describe('TaskDiagram Reducer', () => {
   it('should return the initial state', () => {
-    expect(reducer(initialState, {})).toEqual(initialState);
+    expect(taskReducer(initialState, {})).toEqual(initialState);
   });
   
   it('should handle ADD_TASK', () => {
@@ -67,7 +15,7 @@ describe('TaskDiagram Reducer', () => {
       y: 200
     };
     
-    const newState = reducer(initialState, action);
+    const newState = taskReducer(initialState, action);
     
     expect(newState.tasks).toHaveLength(1);
     expect(newState.tasks[0]).toEqual({
@@ -93,7 +41,7 @@ describe('TaskDiagram Reducer', () => {
       to: 'task2'
     };
     
-    const newState = reducer(stateWithTasks, action);
+    const newState = taskReducer(stateWithTasks, action);
     
     expect(newState.dependencies).toHaveLength(1);
     expect(newState.dependencies[0]).toEqual({
@@ -120,7 +68,7 @@ describe('TaskDiagram Reducer', () => {
       to: 'task2'
     };
     
-    const newState = reducer(stateWithDependency, action);
+    const newState = taskReducer(stateWithDependency, action);
     
     expect(newState.dependencies).toHaveLength(1);
   });
@@ -131,7 +79,7 @@ describe('TaskDiagram Reducer', () => {
       id: 'task1'
     };
     
-    const newState = reducer(initialState, action);
+    const newState = taskReducer(initialState, action);
     
     expect(newState.selectedTask).toBe('task1');
   });
@@ -154,7 +102,7 @@ describe('TaskDiagram Reducer', () => {
       id: 'task1'
     };
     
-    const newState = reducer(stateWithTasks, action);
+    const newState = taskReducer(stateWithTasks, action);
     
     expect(newState.tasks).toHaveLength(1);
     expect(newState.tasks[0].id).toBe('task2');
@@ -177,7 +125,7 @@ describe('TaskDiagram Reducer', () => {
       id: 'task2'
     };
     
-    const newState = reducer(stateWithTasks, action);
+    const newState = taskReducer(stateWithTasks, action);
     
     expect(newState.selectedTask).toBe('task1');
   });
@@ -193,7 +141,7 @@ describe('TaskDiagram Reducer', () => {
       tasks: newTasks
     };
     
-    const newState = reducer(initialState, action);
+    const newState = taskReducer(initialState, action);
     
     expect(newState.tasks).toEqual(newTasks);
   });
