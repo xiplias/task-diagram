@@ -1,5 +1,6 @@
 import { TaskState } from '../types';
 import { DependencyAction } from '../actions';
+import { dependencyExists, updateState, addToStateArray } from '../utils';
 
 /**
  * Handles only the dependency-related state changes
@@ -10,29 +11,22 @@ export function dependencyReducer(state: TaskState, action: DependencyAction): T
       const { from, to } = action;
       
       // Don't add duplicate dependencies
-      if (state.dependencies.find(dep => dep.from === from && dep.to === to)) {
+      if (dependencyExists(state, from, to)) {
         return state;
       }
       
-      return {
-        ...state,
-        dependencies: [...state.dependencies, { from, to }],
-      };
+      return addToStateArray(state, 'dependencies', { from, to });
     }
     case 'DELETE_TASK': {
       const taskId = action.id;
-      return {
-        ...state,
+      return updateState(state, {
         dependencies: state.dependencies.filter(
           dep => dep.from !== taskId && dep.to !== taskId
-        ),
-      };
+        )
+      });
     }
     case 'SET_DEPENDENCIES': {
-      return {
-        ...state,
-        dependencies: action.dependencies,
-      };
+      return updateState(state, { dependencies: action.dependencies });
     }
     default:
       return state;

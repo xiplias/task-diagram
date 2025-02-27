@@ -1,5 +1,6 @@
 import { TaskState } from '../types';
 import { TaskAction } from '../actions';
+import { updateState, addToStateArray } from '../utils';
 
 /**
  * Handles only the task-related state changes
@@ -7,32 +8,22 @@ import { TaskAction } from '../actions';
 export function taskReducer(state: TaskState, action: TaskAction): TaskState {
   switch (action.type) {
     case 'ADD_TASK': {
-      return {
-        ...state,
-        tasks: [...state.tasks, action.task],
-      };
+      return addToStateArray(state, 'tasks', action.task);
     }
     case 'DELETE_TASK': {
       const taskId = action.id;
-      return {
-        ...state,
+      const selectedTask = state.selectedTask === taskId ? null : state.selectedTask;
+      
+      return updateState(state, {
         tasks: state.tasks.filter(t => t.id !== taskId),
-        // Removing dependencies is handled by the dependencyReducer
-        // but we still need to update the selected task state here
-        selectedTask: state.selectedTask === taskId ? null : state.selectedTask,
-      };
+        selectedTask
+      });
     }
     case 'SELECT_TASK': {
-      return { 
-        ...state, 
-        selectedTask: action.id 
-      };
+      return updateState(state, { selectedTask: action.id });
     }
     case 'SET_TASKS': {
-      return { 
-        ...state, 
-        tasks: action.tasks 
-      };
+      return updateState(state, { tasks: action.tasks });
     }
     default:
       return state;
