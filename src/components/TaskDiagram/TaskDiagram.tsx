@@ -1,6 +1,6 @@
 import React, { useReducer, useCallback } from 'react';
-import { renderCanvas } from '../../lib/canvasRenderer';
-import { taskReducer } from '../../store/taskReducer';
+import { renderCanvas } from '../../lib/canvas';
+import { rootReducer, initialState } from '../../store/rootReducer';
 import { useTaskStorage } from '../../hooks/useTaskStorage';
 import { useTaskLayout } from '../../hooks/useTaskLayout';
 import { useCanvasInteraction } from '../../hooks/useCanvasInteraction';
@@ -17,7 +17,7 @@ interface TaskDiagramProps {
  * Displays a canvas with tasks and allows adding dependencies between them
  */
 const TaskDiagram: React.FC<TaskDiagramProps> = ({ width = 800, height = 600 }) => {
-  const [state, dispatch] = useReducer(taskReducer, { tasks: [], dependencies: [], selectedTask: null });
+  const [state, dispatch] = useReducer(rootReducer, initialState);
   const { tasks, dependencies, selectedTask } = state;
   
   // Use our custom hooks

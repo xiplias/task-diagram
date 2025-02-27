@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderCanvas } from '../canvasRenderer';
+import { renderCanvas } from '../canvas';
 
 // Mock canvas context
 class MockContext {
@@ -8,7 +8,8 @@ class MockContext {
     this.beginPath = vi.fn();
     this.moveTo = vi.fn();
     this.lineTo = vi.fn();
-    this.arc = vi.fn();
+    this.fillRect = vi.fn();
+    this.strokeRect = vi.fn();
     this.fill = vi.fn();
     this.stroke = vi.fn();
     this.fillText = vi.fn();
@@ -42,6 +43,10 @@ describe('Canvas Renderer', () => {
     expect(ctx.beginPath).toHaveBeenCalled();
     expect(ctx.moveTo).toHaveBeenCalled();
     expect(ctx.lineTo).toHaveBeenCalled();
+    
+    // Verify rectangles were drawn for tasks
+    expect(ctx.fillRect).toHaveBeenCalled();
+    expect(ctx.strokeRect).toHaveBeenCalled();
     
     // Verify text was drawn for task names
     expect(ctx.fillText).toHaveBeenCalled();

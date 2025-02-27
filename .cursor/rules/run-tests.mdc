@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Running test and linting
+
+- Run tests and lint when the tasks to
