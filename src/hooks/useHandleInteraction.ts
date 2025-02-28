@@ -59,9 +59,30 @@ export function useHandleInteraction(
     
     // Check if hovering over any handle
     const handle = findHandleAtPosition(tasks, mouseX, mouseY);
-    setHoveredHandle(handle);
     
-  }, [tasks, draggedHandle]);
+    // IMPROVED: Always update the hover state on every mouse move
+    // This ensures we clear the state when not hovering any handle
+    if (handle === null) {
+      // We're not over any handle - clear the hover state
+      if (hoveredHandle !== null) {
+        setHoveredHandle(null);
+      }
+    } else if (hoveredHandle === null || 
+              hoveredHandle.taskId !== handle.taskId || 
+              hoveredHandle.position !== handle.position) {
+      // We're over a handle and it's different from the current one (or we had none)
+      setHoveredHandle(handle);
+    }
+    
+  }, [tasks, draggedHandle, hoveredHandle]);
+
+  /**
+   * Handle mouse leave event on canvas
+   */
+  const handleMouseLeave = useCallback(() => {
+    // Clear hovered handle when mouse leaves the canvas
+    setHoveredHandle(null);
+  }, []);
 
   /**
    * Handle mouse up on canvas
@@ -98,6 +119,7 @@ export function useHandleInteraction(
     mousePos,
     handleMouseDown,
     handleMouseMove,
-    handleMouseUp
+    handleMouseUp,
+    handleMouseLeave
   };
 } 

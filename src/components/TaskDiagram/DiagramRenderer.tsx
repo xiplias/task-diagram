@@ -18,6 +18,7 @@ interface DiagramRendererProps {
   onMouseDown: (e: React.MouseEvent<HTMLElement> | MouseEvent) => void;
   onMouseMove: (e: React.MouseEvent<HTMLElement> | MouseEvent) => void;
   onMouseUp: (e: React.MouseEvent<HTMLElement> | MouseEvent) => void;
+  onMouseLeave?: (e: React.MouseEvent<HTMLElement>) => void;
 }
 
 /**
@@ -36,7 +37,8 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
   debugOptions = {},
   onMouseDown,
   onMouseMove,
-  onMouseUp
+  onMouseUp,
+  onMouseLeave
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<IRenderer | null>(null);
@@ -120,6 +122,12 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
     onMouseUp(e);
   };
   
+  const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    if (onMouseLeave) {
+      onMouseLeave(e);
+    }
+  };
+  
   return (
     <div 
       ref={containerRef}
@@ -133,6 +141,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
     />
   );
 };

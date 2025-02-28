@@ -49,7 +49,8 @@ const TaskDiagram: React.FC<TaskDiagramProps> = ({
     mousePos,
     handleMouseDown: originalHandleMouseDown,
     handleMouseMove: originalHandleMouseMove,
-    handleMouseUp: originalHandleMouseUp
+    handleMouseUp: originalHandleMouseUp,
+    handleMouseLeave: originalHandleMouseLeave
   } = useHandleInteraction(tasks, dispatchAny);
   
   // Create wrapper handlers that can accept both React.MouseEvent<HTMLElement> and MouseEvent
@@ -67,28 +68,27 @@ const TaskDiagram: React.FC<TaskDiagramProps> = ({
     // Cast to the type expected by the original handler
     originalHandleMouseUp(e as any);
   }, [originalHandleMouseUp]);
+
+  const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    // Cast to the type expected by the original handler - doesn't need the event param
+    originalHandleMouseLeave();
+  }, [originalHandleMouseLeave]);
   
-  // Event handlers
+  // Handle adding a new task
   const handleAddTask = useCallback(() => {
     const idText = `task${tasks.length + 1}`;
     const name = `Task ${tasks.length + 1}`;
     const id = createTaskId(idText);
-    dispatchAny({ type: 'ADD_TASK', task: { id, name, x: 100, y: 100 } });
-  }, [tasks.length, dispatchAny]);
-  
-  const handleDeleteTask = useCallback(() => {
-    if (selectedTask) {
-      dispatchAny({ type: 'DELETE_TASK', id: selectedTask });
-    }
-  }, [selectedTask, dispatchAny]);
+    dispatch({ type: 'ADD_TASK', task: { id, name, x: Math.round(width / 2), y: Math.round(height / 2) } });
+  }, [tasks.length, width, height]);
   
   // Handle renderer type change
-  const handleRendererChange = useCallback((type: RendererType) => {
-    setRendererType(type);
+  const handleRendererChange = useCallback((newRendererType: RendererType) => {
+    setRendererType(newRendererType);
   }, []);
   
   // Toggle debug options
-  const toggleDebugOption = useCallback((option: keyof DebugOptions) => {
+  const handleToggleDebug = useCallback((option: keyof DebugOptions) => {
     setDebugOptions(prev => ({
       ...prev,
       [option]: !prev[option]
@@ -97,56 +97,14 @@ const TaskDiagram: React.FC<TaskDiagramProps> = ({
   
   return (
     <div className="task-diagram">
-      <div className="renderer-controls" style={{ marginBottom: '10px' }}>
-        <label style={{ marginRight: '10px' }}>Renderer:</label>
-        <select 
-          value={rendererType} 
-          onChange={(e) => handleRendererChange(e.target.value as RendererType)}
-          style={{ 
-            padding: '5px 10px',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
-            marginRight: '20px'
-          }}
-        >
-          <option value={RendererType.Canvas}>Canvas</option>
-          <option value={RendererType.React}>React</option>
-          <option value={RendererType.WebGL}>WebGL</option>
-        </select>
-        
-        <label style={{ marginRight: '10px' }}>Debug:</label>
-        <label style={{ marginRight: '10px' }}>
-          <input 
-            type="checkbox" 
-            checked={!!debugOptions.showCoordinateGrid} 
-            onChange={() => toggleDebugOption('showCoordinateGrid')}
-          /> 
-          Grid
-        </label>
-        <label style={{ marginRight: '10px' }}>
-          <input 
-            type="checkbox" 
-            checked={!!debugOptions.showHitRadius} 
-            onChange={() => toggleDebugOption('showHitRadius')}
-          /> 
-          Hit Radius
-        </label>
-        <label>
-          <input 
-            type="checkbox" 
-            checked={!!debugOptions.showDistanceCircles} 
-            onChange={() => toggleDebugOption('showDistanceCircles')}
-          /> 
-          Distance Circles
-        </label>
-      </div>
-      
       <TaskControls 
-        onAddTask={handleAddTask} 
-        onDeleteTask={handleDeleteTask}
+        onAddTask={handleAddTask}
+        rendererType={rendererType}
+        onRendererChange={handleRendererChange}
+        debugOptions={debugOptions}
+        onToggleDebug={handleToggleDebug}
         selectedTask={selectedTask}
       />
-      
       <DiagramRenderer
         width={width}
         height={height}
@@ -161,13 +119,8 @@ const TaskDiagram: React.FC<TaskDiagramProps> = ({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
       />
-      
-      <div className="instructions" style={{ marginTop: '10px', fontSize: '0.9em', color: '#666' }}>
-        <p>Click and drag from a connection handle (green dot) to another task's handle to create a dependency.</p>
-        <p>Select a task and click "Delete Task" to remove it.</p>
-        <p>Current renderer: <strong>{rendererType}</strong></p>
-      </div>
     </div>
   );
 };

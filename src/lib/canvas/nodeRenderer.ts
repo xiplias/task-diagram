@@ -151,31 +151,7 @@ function drawHandle(
   ctx.lineWidth = 1;
   ctx.stroke();
   
-  // Debug: Draw a faint circle at exactly HANDLE_RADIUS to visualize hit area in production
-  if (process.env.NODE_ENV === 'development') {
-    // Visual radius (green)
-    ctx.beginPath();
-    ctx.arc(x, y, HANDLE_RADIUS, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 255, 0, 0.2)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    
-    // Hit detection radius (red)
-    ctx.beginPath();
-    ctx.arc(x, y, HANDLE_RADIUS + 10, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 0, 0, 0.2)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    
-    // Debug indicator - draw a small grid around the handle to show exact coordinate
-    ctx.strokeStyle = 'rgba(0, 0, 255, 0.3)';
-    ctx.beginPath();
-    ctx.moveTo(x - 10, y);
-    ctx.lineTo(x + 10, y);
-    ctx.moveTo(x, y - 10);
-    ctx.lineTo(x, y + 10);
-    ctx.stroke();
-  }
+  // Debug visualization removed
   
   // Add highlight effect if hovered
   if (isHovered) {

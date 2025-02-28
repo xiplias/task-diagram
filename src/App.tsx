@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import TaskDiagram from './components/TaskDiagram';
-import HandleSelectionTest from './components/TaskDiagram/HandleSelectionTest';
 import { setupDebugMode } from './lib/debugHelpers';
 import './App.css';
 
 const App: React.FC = () => {
-  const [showTest, setShowTest] = useState(false);
   const [debugEnabled, setDebugEnabled] = useState(false);
   
   // Setup debug mode toggling with keyboard shortcut (Ctrl+Shift+D)
@@ -23,21 +21,6 @@ const App: React.FC = () => {
       <h1>Task Dependency Diagram</h1>
       
       <div className="app-controls" style={{ margin: '20px 0' }}>
-        <button 
-          onClick={() => setShowTest(!showTest)}
-          style={{
-            padding: '8px 16px',
-            marginRight: '10px',
-            backgroundColor: showTest ? '#f44336' : '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          {showTest ? 'Hide Selection Test' : 'Show Selection Test'}
-        </button>
-        
         <button
           onClick={() => {
             setDebugEnabled(!debugEnabled);
@@ -77,7 +60,7 @@ const App: React.FC = () => {
         <p>Debug mode can be toggled with Ctrl+Shift+D keyboard shortcut</p>
       </div>
       
-      {showTest ? <HandleSelectionTest /> : <TaskDiagram />}
+      <TaskDiagram />
     </div>
   );
 };

@@ -95,11 +95,7 @@ export function isPointInHandle(
     const stack = new Error().stack || '';
     const caller = stack.split('\n')[2]?.trim() || 'unknown';
     
-    // Check if this is from the test harness or main app
-    const isTestHarness = caller.includes('visualTestUtils') || caller.includes('HandleSelectionTest');
-    
     console.log('====== HANDLE HIT DETECTION DEBUG ======');
-    console.log(`Source: ${isTestHarness ? 'TEST HARNESS' : 'MAIN APPLICATION'}`);
     console.log(`Caller: ${caller}`);
     console.log(`Handle position: (${handleX.toFixed(5)}, ${handleY.toFixed(5)})`);
     console.log(`Test point: (${pointX.toFixed(5)}, ${pointY.toFixed(5)})`);
@@ -108,7 +104,6 @@ export function isPointInHandle(
     console.log(`Hit radius: ${hitRadius} (HANDLE_RADIUS=${HANDLE_RADIUS})`);
     console.log(`Epsilon: ${epsilon}`);
     console.log(`Comparison: ${distance} <= ${hitRadius + epsilon}`);
-    console.log(`Result: ${distance <= (hitRadius + epsilon) ? 'INSIDE' : 'OUTSIDE'}`);
     
     // Calculate angle to check if it's in the southeast quadrant
     let angle = Math.atan2(dy, dx) * (180 / Math.PI);

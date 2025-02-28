@@ -62,23 +62,7 @@ function drawCoordinateGrid(
 ): void {
   const { x, y } = mousePos;
   
-  // Draw crosshair at mouse position
-  ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
-  ctx.lineWidth = 0.5;
-  
-  // Horizontal line
-  ctx.beginPath();
-  ctx.moveTo(x - 20, y);
-  ctx.lineTo(x + 20, y);
-  ctx.stroke();
-  
-  // Vertical line
-  ctx.beginPath();
-  ctx.moveTo(x, y - 20);
-  ctx.lineTo(x, y + 20);
-  ctx.stroke();
-  
-  // Draw coordinates text
+  // Draw coordinates text only, without the crosshair
   ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.font = '10px Arial';
   ctx.fillText(`(${x.toFixed(1)}, ${y.toFixed(1)})`, x + 10, y - 10);
@@ -92,26 +76,8 @@ function drawHitRadius(
   handle: ConnectionHandle,
   mousePos: { x: number, y: number }
 ): void {
-  // Draw the visual radius around the handle (green)
-  ctx.strokeStyle = 'rgba(0, 255, 0, 0.3)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(handle.x, handle.y, HANDLE_RADIUS, 0, Math.PI * 2);
-  ctx.stroke();
-  
-  // Draw the hit detection radius around the handle (red)
-  ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(handle.x, handle.y, HANDLE_RADIUS + 10, 0, Math.PI * 2);
-  ctx.stroke();
-  
-  // Draw line from handle to mouse
-  ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-  ctx.beginPath();
-  ctx.moveTo(handle.x, handle.y);
-  ctx.lineTo(mousePos.x, mousePos.y);
-  ctx.stroke();
+  // Empty implementation - visualization removed
+  // We're keeping the function to maintain API compatibility
 }
 
 /**
@@ -122,42 +88,6 @@ function drawDistanceCircles(
   handle: ConnectionHandle,
   mousePos: { x: number, y: number }
 ): void {
-  // Calculate distance
-  const dx = handle.x - mousePos.x;
-  const dy = handle.y - mousePos.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  
-  // Draw distance circle
-  ctx.strokeStyle = 'rgba(0, 255, 0, 0.3)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(handle.x, handle.y, distance, 0, Math.PI * 2);
-  ctx.stroke();
-  
-  // Draw visual HANDLE_RADIUS circle for comparison
-  ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
-  ctx.beginPath();
-  ctx.arc(handle.x, handle.y, HANDLE_RADIUS, 0, Math.PI * 2);
-  ctx.stroke();
-  
-  // Draw hit detection HANDLE_RADIUS circle for comparison
-  ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-  ctx.beginPath();
-  ctx.arc(handle.x, handle.y, HANDLE_RADIUS + 10, 0, Math.PI * 2);
-  ctx.stroke();
-  
-  // Display distance text
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-  ctx.font = '10px Arial';
-  ctx.fillText(`Distance: ${distance.toFixed(1)}`, 
-               (handle.x + mousePos.x) / 2, 
-               (handle.y + mousePos.y) / 2 - 15);
-  
-  ctx.fillText(`Visual radius: ${HANDLE_RADIUS}`, 
-               (handle.x + mousePos.x) / 2, 
-               (handle.y + mousePos.y) / 2);
-               
-  ctx.fillText(`Hit radius: ${HANDLE_RADIUS + 10}`, 
-               (handle.x + mousePos.x) / 2, 
-               (handle.y + mousePos.y) / 2 + 15);
+  // Empty implementation - visualization removed
+  // We're keeping the function to maintain API compatibility
 } 

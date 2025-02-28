@@ -8,11 +8,6 @@ vi.mock('./components/TaskDiagram', () => ({
   default: () => <div data-testid="task-diagram-mock">TaskDiagram Mock</div>
 }));
 
-// Also mock the HandleSelectionTest component
-vi.mock('./components/TaskDiagram/HandleSelectionTest', () => ({
-  default: () => <div data-testid="handle-selection-test-mock">HandleSelectionTest Mock</div>
-}));
-
 describe('App', () => {
   it('renders the app title', () => {
     render(<App />);
