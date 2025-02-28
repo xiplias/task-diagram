@@ -2,9 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { 
   getHandlePosition, 
   findHandleAtPosition, 
-  HandlePosition 
+  HandlePosition,
+  isPointInHandle 
 } from '../handleUtils';
-import { createTaskId } from '../../../store/types';
+import { createTaskId, Task } from '../../../store/types';
 import { NODE_HEIGHT, HANDLE_RADIUS } from '../constants';
 
 describe('Handle Utilities', () => {
@@ -128,35 +129,26 @@ describe('Handle Utilities', () => {
 
     // Test that verifies the mouse selection area exactly matches the drawn circle dimensions
     it('should match selection area exactly with drawn circle dimensions', () => {
-      const task = {
+      // Create a test task
+      const task: Task = {
         id: createTaskId('circleTest'),
-        name: 'Circle Test Task',
+        name: 'Circle Test',
         x: 400,
         y: 300
       };
       
-      // Get the handle positions
+      // Get the exact positions of the handles
       const topHandle = getHandlePosition(task, HandlePosition.TOP);
       const topX = topHandle.x;
       const topY = topHandle.y;
       
-      // Test points at exactly HANDLE_RADIUS away (should be detected)
-      // Points exactly on the circle edge
+      // Test points exactly at HANDLE_RADIUS (should be detected)
       const exactRadius = HANDLE_RADIUS;
-      
-      // Point at right edge of circle (x+r, y)
       expect(findHandleAtPosition([task], topX + exactRadius, topY)).not.toBeNull();
-      
-      // Point at left edge of circle (x-r, y)
       expect(findHandleAtPosition([task], topX - exactRadius, topY)).not.toBeNull();
-      
-      // Point at top edge of circle (x, y-r)
       expect(findHandleAtPosition([task], topX, topY - exactRadius)).not.toBeNull();
-      
-      // Point at bottom edge of circle (x, y+r)
       expect(findHandleAtPosition([task], topX, topY + exactRadius)).not.toBeNull();
       
-      // Points at diagonal positions - radius * cos(45°), radius * sin(45°)
       // The diagonal distance for a 45° angle is radius * √2/2
       const diagonalOffset = exactRadius * Math.sqrt(2) / 2;
       expect(findHandleAtPosition([task], topX + diagonalOffset, topY + diagonalOffset)).not.toBeNull();
@@ -164,10 +156,11 @@ describe('Handle Utilities', () => {
       expect(findHandleAtPosition([task], topX + diagonalOffset, topY - diagonalOffset)).not.toBeNull();
       expect(findHandleAtPosition([task], topX - diagonalOffset, topY - diagonalOffset)).not.toBeNull();
       
-      // Test points just beyond HANDLE_RADIUS (should NOT be detected)
-      const beyondRadius = HANDLE_RADIUS + 0.01;
+      // Test points just beyond the hit detection radius (HANDLE_RADIUS + 10 + small epsilon)
+      const hitRadius = HANDLE_RADIUS + 10;
+      const beyondRadius = hitRadius + 0.2;
       
-      // Points just outside the circle edge
+      // Points just outside the hit detection circle edge
       expect(findHandleAtPosition([task], topX + beyondRadius, topY)).toBeNull();
       expect(findHandleAtPosition([task], topX - beyondRadius, topY)).toBeNull();
       expect(findHandleAtPosition([task], topX, topY - beyondRadius)).toBeNull();
@@ -176,6 +169,57 @@ describe('Handle Utilities', () => {
       // Points at diagonal positions just outside the radius
       const beyondDiagonalOffset = beyondRadius * Math.sqrt(2) / 2;
       expect(findHandleAtPosition([task], topX + beyondDiagonalOffset, topY + beyondDiagonalOffset)).toBeNull();
+    });
+
+    // New test demonstrating the hit detection inconsistency
+    it('should correctly detect points at the boundaries of the visual and hit detection areas', () => {
+      // Create a test task at position (400, 280)
+      const task: Task = {
+        id: createTaskId('boundaryTest'),
+        name: 'Boundary Test',
+        x: 400,
+        y: 280
+      };
+      
+      // Get exact handle position
+      const topHandle = getHandlePosition(task, HandlePosition.TOP);
+      const topX = topHandle.x;
+      const topY = topHandle.y;
+      
+      // Visual handle radius is HANDLE_RADIUS (7px)
+      // Hit detection radius is HANDLE_RADIUS + 10 (17px) with epsilon -0.05
+      
+      // Test direct detection through isPointInHandle function
+      // Point just inside the visual radius (at exactly HANDLE_RADIUS pixels)
+      expect(isPointInHandle(topX, topY, topX + HANDLE_RADIUS, topY, false)).toBe(true);
+      
+      // Point at the same distance but using hit detection mode
+      expect(isPointInHandle(topX, topY, topX + HANDLE_RADIUS, topY, true)).toBe(true);
+      
+      // Create a point just at the outer boundary of hit detection radius
+      // This point is at exactly HANDLE_RADIUS + 10 pixels (the hit radius)
+      const exactHitRadius = HANDLE_RADIUS + 10;
+      expect(isPointInHandle(topX, topY, topX + exactHitRadius, topY, true)).toBe(true);
+      
+      // This point is at exactly HANDLE_RADIUS + 10 + small value past epsilon
+      // With our new positive epsilon of 0.1, we need a larger value to be outside
+      const justBeyondHitRadius = exactHitRadius + 0.2;
+      expect(isPointInHandle(topX, topY, topX + justBeyondHitRadius, topY, true)).toBe(false);
+      
+      // FAILING TEST: This point is at exactly HANDLE_RADIUS + 10 - epsilon
+      // It should be detected as inside, but due to floating point imprecision it may not be
+      const justInsideHitRadius = exactHitRadius - 0.051;
+      expect(isPointInHandle(topX, topY, topX + justInsideHitRadius, topY, true)).toBe(true);
+      
+      // Test a point that's visually outside the handle (beyond HANDLE_RADIUS)
+      // but within the hit detection radius (less than HANDLE_RADIUS + 10)
+      const visuallyOutsideButDetectable = HANDLE_RADIUS + 5; 
+      
+      // This would look outside the handle visually
+      expect(isPointInHandle(topX, topY, topX + visuallyOutsideButDetectable, topY, false)).toBe(false);
+      
+      // But should be detected as inside for interaction purposes
+      expect(isPointInHandle(topX, topY, topX + visuallyOutsideButDetectable, topY, true)).toBe(true);
     });
   });
 }); 

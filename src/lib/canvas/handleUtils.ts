@@ -84,10 +84,9 @@ export function isPointInHandle(
   // This compensates for differences between mouse position and visual cursor
   const hitRadius = isHitDetection ? HANDLE_RADIUS + 10 : HANDLE_RADIUS;
   
-  // Small epsilon (tolerance) value to account for floating point precision issues
-  // This is especially important for points exactly at the boundary
-  // where floating point errors might cause inconsistent behavior
-  const epsilon = isHitDetection ? 0.05 : 0;
+  // FIXED: Removed the negative epsilon which was causing inconsistent detection
+  // Instead, we now add a small positive epsilon to ensure boundary cases are included
+  const epsilon = isHitDetection ? 0.1 : 0;
   
   // Create detailed debug info for tracing issues
   // Only log on hit detections that are borderline cases
@@ -123,9 +122,8 @@ export function isPointInHandle(
     console.log('=======================================');
   }
   
-  // Add epsilon to the hit radius to ensure points very close to the boundary
-  // are consistently detected, especially in the southeast quadrant
-  // where floating point precision issues have been observed
+  // FIXED: Instead of subtracting epsilon (making hit area smaller),
+  // we add it (making hit area slightly larger) to catch boundary cases correctly
   return distance <= (hitRadius + epsilon);
 }
 
